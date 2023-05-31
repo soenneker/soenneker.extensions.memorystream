@@ -4,10 +4,14 @@ on:
     branches: [main]
     types:
       - auto_merge_disabled
+
 permissions:
-  # "permissions" section should not be empty
-  # This action doesn't use secrets.GITHUB_TOKEN
-  contents: read
+  contents: write
+  pull-requests: write
+
+env:
+  GH_TOKEN: ${{ secrets.DEPENDABOT }}
+
 jobs:
   main:
     if: "github.event.reason == 'Base branch was modified'"
@@ -16,15 +20,12 @@ jobs:
     - name: Update pull request branch
       run: gh api -X PUT "repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/update-branch"
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
     # This prevents pull request from being merged before running a new workflow.
     - name: wait for starting a new workflow by updating branch
       shell: bash
-      run: sleep 5
+      run: sleep 10
 
     - name: enable automerge
       shell: bash
       run: gh pr merge --auto --merge "$PR_URL"
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
