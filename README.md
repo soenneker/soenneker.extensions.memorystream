@@ -8,5 +8,5 @@
 ## Installation
 
 ```
-Install-Package Soenneker.Extensions.MemoryStream
+dotnet add package Soenneker.Extensions.MemoryStream
 ```
