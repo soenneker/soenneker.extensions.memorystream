@@ -8,6 +8,11 @@ namespace Soenneker.Extensions.MemoryStream;
 /// </summary>
 public static class MemoryStreamExtension
 {
+    /// <summary>
+    /// Executes the to read only memory bytes operation.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the operation.</returns>
     [Pure]
     public static ReadOnlyMemory<byte> ToReadOnlyMemoryBytes(this System.IO.MemoryStream value)
     {
