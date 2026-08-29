@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.memorystream/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.memorystream/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.MemoryStream
-A collection of helpful MemoryStream extension methods.
+Exposes the written portion of a `MemoryStream` as `ReadOnlyMemory<byte>` without copying it.
 
 ## Installation
 
@@ -12,15 +12,17 @@ A collection of helpful MemoryStream extension methods.
 dotnet add package Soenneker.Extensions.MemoryStream
 ```
 
-## Quick start
+## Usage
 
 ```csharp
 using Soenneker.Extensions.MemoryStream;
 
-// Given an existing System.IO.MemoryStream named value:
-var result = value.ToReadOnlyMemoryBytes();
+using var stream = new MemoryStream();
+stream.Write([1, 2, 3]);
+
+ReadOnlyMemory<byte> bytes = stream.ToReadOnlyMemoryBytes(); // [1, 2, 3]
 ```
 
-## Common operations
+Despite its old XML wording, this method does not encode a string. It returns a zero-copy view over the stream's underlying buffer from index `0` through `Length`; the stream's current `Position` is irrelevant.
 
-- `ToReadOnlyMemoryBytes()` - Returns a zero-copy view over the stream's internal buffer through `Length`; the stream must expose its buffer.
+Because the memory aliases the stream buffer, later writes can be visible through the returned memory. `GetBuffer()` must be permitted—streams created over a non-publicly-visible external buffer throw `UnauthorizedAccessException`. The length must fit in an `int`.
