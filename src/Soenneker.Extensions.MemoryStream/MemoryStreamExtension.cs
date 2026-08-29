@@ -9,10 +9,10 @@ namespace Soenneker.Extensions.MemoryStream;
 public static class MemoryStreamExtension
 {
     /// <summary>
-    /// Executes the to read only memory bytes operation.
+    /// Encodes the string as UTF-8 bytes in read-only memory.
     /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>The result of the operation.</returns>
+    /// <param name="value">The stream whose written bytes are exposed.</param>
+    /// <returns>Read-only memory containing the UTF-8 bytes.</returns>
     [Pure]
     public static ReadOnlyMemory<byte> ToReadOnlyMemoryBytes(this System.IO.MemoryStream value)
     {
