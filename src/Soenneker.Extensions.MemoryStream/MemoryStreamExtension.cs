@@ -9,13 +9,19 @@ namespace Soenneker.Extensions.MemoryStream;
 public static class MemoryStreamExtension
 {
     /// <summary>
-    /// Encodes the string as UTF-8 bytes in read-only memory.
+    /// Returns a read-only view of the stream's valid underlying buffer segment.
     /// </summary>
     /// <param name="value">The stream whose written bytes are exposed.</param>
-    /// <returns>Read-only memory containing the UTF-8 bytes.</returns>
+    /// <returns>Read-only memory that aliases the bytes from the beginning of the stream through its length.</returns>
     [Pure]
     public static ReadOnlyMemory<byte> ToReadOnlyMemoryBytes(this System.IO.MemoryStream value)
     {
-        return new ReadOnlyMemory<byte>(value.GetBuffer(), 0, (int)value.Length);
+        if (!value.TryGetBuffer(out ArraySegment<byte> segment))
+        {
+            // Preserve MemoryStream.GetBuffer()'s established exception for a non-public buffer.
+            value.GetBuffer();
+        }
+
+        return new ReadOnlyMemory<byte>(segment.Array!, segment.Offset, segment.Count);
     }
 }

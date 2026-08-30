@@ -12,9 +12,7 @@ Extension methods for working with `MemoryStream` instances, including efficient
 dotnet add package Soenneker.Extensions.MemoryStream
 ```
 
-## Current API
-
-### `ToReadOnlyMemoryBytes()`
+## Expose the valid buffer without copying
 
 ```csharp
 using Soenneker.Extensions.MemoryStream;
@@ -25,6 +23,17 @@ stream.Write([1, 2, 3]);
 ReadOnlyMemory<byte> bytes = stream.ToReadOnlyMemoryBytes(); // [1, 2, 3]
 ```
 
-Returns a zero-copy `ReadOnlyMemory<byte>` view over the stream's underlying buffer from index `0` through `Length`. The stream's current `Position` does not affect the returned range.
+`ToReadOnlyMemoryBytes()` returns a zero-copy `ReadOnlyMemory<byte>` view over the stream's valid underlying buffer segment. The stream's current `Position` does not affect the returned range.
 
-Because the memory aliases the stream buffer, later writes can be visible through the returned memory. `GetBuffer()` must be permitted—streams created over a non-publicly-visible external buffer throw `UnauthorizedAccessException`. The length must fit in an `int`.
+For a stream created over an array segment, the returned memory begins at that segment's offset rather than at index zero of the underlying array:
+
+```csharp
+byte[] buffer = [99, 1, 2, 3, 88];
+using var stream = new MemoryStream(buffer, 1, 3, writable: false, publiclyVisible: true);
+
+ReadOnlyMemory<byte> bytes = stream.ToReadOnlyMemoryBytes(); // [1, 2, 3]
+```
+
+Because the memory aliases the stream buffer, later writes through the stream or another owner of the array can be visible through the returned memory. `ReadOnlyMemory<byte>` prevents mutation through this particular view; it does not make the underlying bytes immutable or create a snapshot. Call `ToArray()` on the returned memory when an independent copy is required.
+
+Buffer visibility must be permitted. A `MemoryStream` created over a non-publicly-visible external buffer throws `UnauthorizedAccessException`. A null or disposed/inaccessible stream follows the underlying `MemoryStream` buffer APIs' exception behavior.
