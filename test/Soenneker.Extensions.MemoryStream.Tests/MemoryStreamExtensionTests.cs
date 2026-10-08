@@ -1,12 +1,13 @@
 using System.Linq;
 using Soenneker.Tests.Unit;
+using System.Threading;
 
 namespace Soenneker.Extensions.MemoryStream.Tests;
 
 public class MemoryStreamExtensionTests : UnitTest
 {
     [Test]
-    public async System.Threading.Tasks.ValueTask Uses_the_stream_segment_offset()
+    public async System.Threading.Tasks.ValueTask Uses_the_stream_segment_offset(CancellationToken cancellationToken)
     {
         byte[] buffer = [99, 1, 2, 3, 88];
         using var stream = new System.IO.MemoryStream(buffer, 1, 3, writable: false, publiclyVisible: true);
